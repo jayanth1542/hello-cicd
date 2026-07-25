@@ -1,0 +1,40 @@
+---
+- name: Deploy hello-cicd container
+  hosts: staging
+  become: true
+  vars:
+    image_name: "jayanth1542/hello-cicd"
+    image_tag: "{{ build_number | default('latest') }}"
+    container_name: "hello-cicd"
+    host_port: 8081
+
+  tasks:
+    - name: Pull the new image
+      community.docker.docker_image:
+        name: "{{ image_name }}:{{ image_tag }}"
+        source: pull
+
+    - name: Stop and remove existing container (if present)
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        state: absent
+
+    - name: Run new container
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        image: "{{ image_name }}:{{ image_tag }}"
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "{{ host_port }}:3000"
+        env:
+          BUILD_NUMBER: "{{ image_tag }}"
+
+    - name: Wait for health check
+      uri:
+        url: "http://localhost:{{ host_port }}/health"
+        status_code: 200
+      register: health
+      retries: 5
+      delay: 3
+      until: health.status == 200
