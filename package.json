@@ -1,0 +1,9 @@
+{
+  "name": "hello-cicd",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo 'placeholder: replace with real tests' && exit 0"
+  },
+  "dependencies": { "express": "^4.19.2" }
+}
