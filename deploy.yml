@@ -1,7 +1,6 @@
 ---
 - name: Deploy hello-cicd container
   hosts: staging
-  become: true
   vars:
     image_name: "jayanth1542/hello-cicd"
     image_tag: "{{ build_number | default('latest') }}"
